@@ -30,9 +30,9 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
         <p className="text-sm md:text-base text-muted-foreground">Top 5 most likely numbers based on statistical analysis</p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         {topPredictions.map((prediction, index) => (
-          <Card key={prediction.number} className="w-[300px] relative overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
+          <Card key={prediction.number} className="relative overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
             <div className="p-4 md:p-6 text-center">
               <div className="absolute top-2 right-2">
                 <Badge variant="secondary" className="text-xs">

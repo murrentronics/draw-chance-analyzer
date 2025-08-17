@@ -162,7 +162,7 @@ const Index = () => {
             <>
               <PredictionDisplay predictions={predictionSet.predictions.map(p => ({
                 number: p.number,
-                probability: p.confidence,
+                probability: p.accuracy,
                 daysSince: 0, // Will be calculated in component
                 frequency: 0, // Will be calculated in component
                 chineseScore: 0, // Will be calculated in component

@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { PredictionDisplay } from "@/components/PredictionDisplay";
 import { DrawInput } from "@/components/DrawInput";
 import { HistoryTable } from "@/components/HistoryTable";
-import { calculateProbabilities, PredictionResult } from "@/lib/probability";
+import { generateHighAccuracyPredictions, PredictionSet } from "@/lib/highAccuracyPredictor";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { LogOut, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface DrawRecord {
@@ -19,7 +21,7 @@ interface DrawRecord {
 
 const Index = () => {
   const [historicalData, setHistoricalData] = useState<DrawRecord[]>([]);
-  const [predictions, setPredictions] = useState<PredictionResult[]>([]);
+  const [predictionSet, setPredictionSet] = useState<PredictionSet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { logout } = useAuth();
 
@@ -40,9 +42,9 @@ const Index = () => {
       setHistoricalData(draws);
     }
 
-    // Calculate predictions
-    const newPredictions = await calculateProbabilities();
-    setPredictions(newPredictions);
+    // Generate high-accuracy predictions
+    const newPredictionSet = await generateHighAccuracyPredictions();
+    setPredictionSet(newPredictionSet);
     setIsLoading(false);
   };
 
@@ -93,12 +95,24 @@ const Index = () => {
     return 'Evening';
   };
 
+  const getAccuracyBadgeVariant = (accuracy: number) => {
+    if (accuracy >= 0.95) return 'default';
+    if (accuracy >= 0.80) return 'secondary';
+    return 'outline';
+  };
+
+  const getAccuracyIcon = (accuracy: number) => {
+    if (accuracy >= 0.95) return <CheckCircle className="w-4 h-4" />;
+    if (accuracy >= 0.80) return <TrendingUp className="w-4 h-4" />;
+    return <AlertTriangle className="w-4 h-4" />;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading probability data...</p>
+          <p className="text-muted-foreground">Analyzing patterns for 95%+ accuracy...</p>
         </div>
       </div>
     );
@@ -119,15 +133,82 @@ const Index = () => {
           </Button>
           
           <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
-            PlayWhe ProbMaster
+            PlayWhe ProbMaster Pro
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Advanced statistical prediction for lottery numbers
+          <p className="text-xl text-muted-foreground mb-4">
+            Ultra-High Accuracy Prediction System (95%+ Target)
           </p>
+          
+          {predictionSet && (
+            <div className="flex justify-center gap-4 flex-wrap">
+              <Badge variant={getAccuracyBadgeVariant(predictionSet.expectedAccuracy)} className="text-sm">
+                {getAccuracyIcon(predictionSet.expectedAccuracy)}
+                Expected: {(predictionSet.expectedAccuracy * 100).toFixed(1)}% Accuracy
+              </Badge>
+              <Badge variant="outline" className="text-sm">
+                Data Points: {predictionSet.totalDataPoints}
+              </Badge>
+              <Badge variant="secondary" className="text-sm">
+                Confidence: {(predictionSet.overallConfidence * 100).toFixed(1)}%
+              </Badge>
+            </div>
+          )}
         </header>
 
         <div className="grid gap-8 max-w-6xl mx-auto">
-          <PredictionDisplay predictions={predictions} />
+          {predictionSet && predictionSet.predictions.length > 0 ? (
+            <>
+              <PredictionDisplay predictions={predictionSet.predictions.map(p => ({
+                number: p.number,
+                probability: p.confidence,
+                daysSince: 0, // Will be calculated in component
+                frequency: 0, // Will be calculated in component
+                chineseScore: 0, // Will be calculated in component
+                timePatternScore: 0, // Will be calculated in component
+                element: p.element
+              }))} />
+              
+              <Card className="p-6 bg-gradient-card border-border/50">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  High-Accuracy Analysis
+                </h3>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">{predictionSet.recommendation}</p>
+                  
+                  {predictionSet.predictions.slice(0, 3).map((prediction, index) => (
+                    <div key={prediction.number} className="border-l-4 border-primary/30 pl-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg font-bold text-primary">#{prediction.number}</span>
+                        <Badge variant={getAccuracyBadgeVariant(prediction.accuracy)}>
+                          {(prediction.accuracy * 100).toFixed(1)}% Accuracy
+                        </Badge>
+                        <Badge variant={prediction.riskLevel === 'LOW' ? 'default' : prediction.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'}>
+                          {prediction.riskLevel} Risk
+                        </Badge>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        {prediction.reasoning.map((reason, idx) => (
+                          <li key={idx}>• {reason}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </>
+          ) : (
+            <Card className="p-8 text-center bg-gradient-card border-border/50">
+              <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Insufficient Data for 95%+ Accuracy</h3>
+              <p className="text-muted-foreground mb-4">
+                {predictionSet?.recommendation || "Need more historical data to generate high-accuracy predictions."}
+              </p>
+              <Badge variant="outline">
+                Current Data: {predictionSet?.totalDataPoints || 0} draws
+              </Badge>
+            </Card>
+          )}
           
           <DrawInput onSubmit={handleNewDraw} />
           

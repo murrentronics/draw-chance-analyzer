@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PredictionDisplay } from "@/components/PredictionDisplay";
 import { DrawInput } from "@/components/DrawInput";
 import { HistoryTable } from "@/components/HistoryTable";
+import { BulkDataImport } from "@/components/BulkDataImport";
 import { generateHighAccuracyPredictions, PredictionSet } from "@/lib/highAccuracyPredictor";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -208,6 +209,10 @@ const Index = () => {
                 Current Data: {predictionSet?.totalDataPoints || 0} draws
               </Badge>
             </Card>
+          )}
+          
+          {historicalData.length < 200 && (
+            <BulkDataImport onImportComplete={loadData} />
           )}
           
           <DrawInput onSubmit={handleNewDraw} />

@@ -4,34 +4,63 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Lock, User, UserPlus } from "lucide-react";
 
 interface LoginProps {
   onLogin: () => void;
 }
 
 export const Login = ({ onLogin }: LoginProps) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple hardcoded authentication
-    if (username === "Admin" && password === "Hollopoint360$") {
-      localStorage.setItem("isAuthenticated", "true");
-      onLogin();
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Sign Up Successful",
+          description: "Please check your email to confirm your account.",
+        });
+      } else {
+        // Check for admin login first
+        if (email === "admin@playwhe.com" && password === "Hollopoint360$") {
+          localStorage.setItem("isAdmin", "true");
+        }
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        onLogin();
+        toast({
+          title: "Login Successful",
+          description: "Welcome to PlayWhe ProbMaster!",
+        });
+      }
+    } catch (error: any) {
       toast({
-        title: "Login Successful",
-        description: "Welcome to PlayWhe ProbMaster!",
-      });
-    } else {
-      toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
+        title: isSignUp ? "Sign Up Failed" : "Login Failed",
+        description: error.message,
         variant: "destructive",
       });
     }
@@ -51,22 +80,22 @@ export const Login = ({ onLogin }: LoginProps) => {
               PlayWhe ProbMaster
             </h1>
             <p className="text-muted-foreground mt-2">
-              Admin Access Required
+              {isSignUp ? "Create your account" : "Sign in to your account"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="flex items-center gap-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Username
+                Email
               </Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email"
                 className="bg-background/50 border-border"
                 required
               />
@@ -93,9 +122,30 @@ export const Login = ({ onLogin }: LoginProps) => {
               className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? (isSignUp ? "Creating account..." : "Signing in...") : (isSignUp ? "Sign Up" : "Sign In")}
             </Button>
           </form>
+
+          <div className="text-center mt-6">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-sm text-muted-foreground hover:text-primary"
+              onClick={() => setIsSignUp(!isSignUp)}
+            >
+              {isSignUp ? (
+                <>
+                  <Lock className="w-4 h-4 mr-2" />
+                  Already have an account? Sign In
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Don't have an account? Sign Up
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

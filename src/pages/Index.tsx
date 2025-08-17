@@ -36,7 +36,7 @@ const Index = () => {
   const [predictionSet, setPredictionSet] = useState<PredictionSet | null>(null);
   const [processedPredictions, setProcessedPredictions] = useState<ProcessedPrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
 
   useEffect(() => {
     loadData();
@@ -262,11 +262,15 @@ const Index = () => {
             </Card>
           )}
           
-          {historicalData.length < 200 && (
-            <BulkDataImport onImportComplete={loadData} />
+          {isAdmin && (
+            <>
+              {historicalData.length < 200 && (
+                <BulkDataImport onImportComplete={loadData} />
+              )}
+              
+              <DrawInput onSubmit={handleNewDraw} />
+            </>
           )}
-          
-          <DrawInput onSubmit={handleNewDraw} />
           
           <HistoryTable data={historicalData} />
         </div>

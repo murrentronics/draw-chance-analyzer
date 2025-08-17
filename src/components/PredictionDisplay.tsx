@@ -32,7 +32,7 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
 
       <div className="flex flex-wrap justify-center gap-4">
         {topPredictions.map((prediction, index) => (
-          <Card key={prediction.number} className="w-[200px] relative overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
+          <Card key={prediction.number} className="w-[300px] relative overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
             <div className="p-4 md:p-6 text-center">
               <div className="absolute top-2 right-2">
                 <Badge variant="secondary" className="text-xs">

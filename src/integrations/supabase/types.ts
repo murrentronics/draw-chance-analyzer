@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      draws: {
+        Row: {
+          created_at: string
+          date: string
+          draw_id: string
+          id: string
+          number: number
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          draw_id: string
+          id?: string
+          number: number
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          draw_id?: string
+          id?: string
+          number?: number
+          time?: string
+        }
+        Relationships: []
+      }
+      number_frequencies: {
+        Row: {
+          frequency: number
+          id: string
+          number: number
+          updated_at: string
+        }
+        Insert: {
+          frequency?: number
+          id?: string
+          number: number
+          updated_at?: string
+        }
+        Update: {
+          frequency?: number
+          id?: string
+          number?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

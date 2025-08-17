@@ -21,69 +21,15 @@ interface DrawRecord {
   created_at: string;
 }
 
-interface ProcessedPrediction {
-  number: number;
-  probability: number;
-  daysSince: number;
-  frequency: number;
-  chineseScore: number;
-  timePatternScore: number;
-  element: string;
-}
-
 const Index = () => {
   const [historicalData, setHistoricalData] = useState<DrawRecord[]>([]);
   const [predictionSet, setPredictionSet] = useState<PredictionSet | null>(null);
-  const [processedPredictions, setProcessedPredictions] = useState<ProcessedPrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { logout, isAdmin } = useAuth();
+  const { logout } = useAuth();
 
   useEffect(() => {
     loadData();
   }, []);
-
-  useEffect(() => {
-    const processPredictions = async () => {
-      if (!predictionSet?.predictions || !historicalData.length) {
-        setProcessedPredictions([]);
-        return;
-      }
-
-      const processed = await Promise.all(predictionSet.predictions.map(async p => {
-        // Get real frequency data
-        const { data: freqData } = await supabase
-          .from('number_frequencies')
-          .select('frequency')
-          .eq('number', p.number)
-          .maybeSingle();
-        
-        // Calculate days since last seen
-        const lastSeenPosition = historicalData.findIndex(record => record.number === p.number);
-        const daysSince = lastSeenPosition >= 0 ? lastSeenPosition : historicalData.length;
-        
-        // Extract scores from reasoning (simple parsing)
-        const chineseMatch = p.reasoning.join(' ').match(/Chinese pairs|pair/i);
-        const timeMatch = p.reasoning.join(' ').match(/time pattern.*?(\d+\.?\d*)%/i);
-        
-        const chineseScore = chineseMatch ? 0.8 : 0.2; // Approximate based on reasoning
-        const timePatternScore = timeMatch ? parseFloat(timeMatch[1]) / 100 : 0.1;
-        
-        return {
-          number: p.number,
-          probability: p.accuracy,
-          daysSince,
-          frequency: freqData?.frequency || 0,
-          chineseScore,
-          timePatternScore,
-          element: p.element
-        };
-      }));
-      
-      setProcessedPredictions(processed);
-    };
-
-    processPredictions();
-  }, [predictionSet, historicalData]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -212,9 +158,17 @@ const Index = () => {
         </header>
 
         <div className="grid gap-8 max-w-6xl mx-auto">
-          {processedPredictions.length > 0 ? (
+          {predictionSet && predictionSet.predictions.length > 0 ? (
             <>
-              <PredictionDisplay predictions={processedPredictions} />
+              <PredictionDisplay predictions={predictionSet.predictions.map(p => ({
+                number: p.number,
+                probability: p.accuracy,
+                daysSince: 0, // Will be calculated in component
+                frequency: 0, // Will be calculated in component
+                chineseScore: 0, // Will be calculated in component
+                timePatternScore: 0, // Will be calculated in component
+                element: p.element
+              }))} />
               
               <Card className="p-4 md:p-6 bg-gradient-card border-border/50">
                 <div className="text-center">
@@ -262,15 +216,11 @@ const Index = () => {
             </Card>
           )}
           
-          {isAdmin && (
-            <>
-              {historicalData.length < 200 && (
-                <BulkDataImport onImportComplete={loadData} />
-              )}
-              
-              <DrawInput onSubmit={handleNewDraw} />
-            </>
+          {historicalData.length < 200 && (
+            <BulkDataImport onImportComplete={loadData} />
           )}
+          
+          <DrawInput onSubmit={handleNewDraw} />
           
           <HistoryTable data={historicalData} />
         </div>

@@ -2,7 +2,14 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { History, Clock, Calendar, Hash } from "lucide-react";
-import { DrawRecord } from "@/lib/data";
+interface DrawRecord {
+  id: string;
+  draw_id: string;
+  date: string;
+  time: string;
+  number: number;
+  created_at: string;
+}
 
 interface HistoryTableProps {
   data: DrawRecord[];
@@ -67,9 +74,9 @@ export const HistoryTable = ({ data }: HistoryTableProps) => {
             </TableHeader>
             <TableBody>
               {data.slice(0, 50).map((record) => (
-                <TableRow key={record.drawId} className="border-border/50 hover:bg-muted/30">
+                <TableRow key={record.id} className="border-border/50 hover:bg-muted/30">
                   <TableCell className="font-medium">
-                    {record.drawId}
+                    {record.draw_id}
                   </TableCell>
                   <TableCell>{record.date}</TableCell>
                   <TableCell>

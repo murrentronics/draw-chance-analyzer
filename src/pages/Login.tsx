@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, User, UserPlus } from "lucide-react";
+import { Lock, User, UserPlus, Eye, EyeOff, Phone } from "lucide-react";
 
 interface LoginProps {
   onLogin: () => void;
@@ -14,6 +14,10 @@ interface LoginProps {
 export const Login = ({ onLogin }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
@@ -24,19 +28,32 @@ export const Login = ({ onLogin }: LoginProps) => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Validation for signup
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+        
+        if (password.length < 6) {
+          throw new Error("Password must be at least 6 characters");
+        }
+
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`
+            data: {
+              phone: phone
+            }
           }
         });
 
         if (error) throw error;
 
+        // Log user in immediately after signup (no email confirmation required)
+        onLogin();
         toast({
-          title: "Sign Up Successful",
-          description: "Please check your email to confirm your account.",
+          title: "Account Created Successfully",
+          description: "Welcome to PlayWhe ProbMaster!",
         });
       } else {
         // Check for admin login first
@@ -101,21 +118,86 @@ export const Login = ({ onLogin }: LoginProps) => {
               />
             </div>
 
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Enter phone number"
+                  className="bg-background/50 border-border"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="password" className="flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 Password
               </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className="bg-background/50 border-border"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="bg-background/50 border-border pr-10"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
             </div>
+
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="bg-background/50 border-border pr-10"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <Button
               type="submit"
@@ -130,7 +212,7 @@ export const Login = ({ onLogin }: LoginProps) => {
             <Button
               type="button"
               variant="ghost"
-              className="text-sm text-muted-foreground hover:text-primary"
+              className="text-sm text-muted-foreground hover:text-white"
               onClick={() => setIsSignUp(!isSignUp)}
             >
               {isSignUp ? (

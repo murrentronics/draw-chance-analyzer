@@ -97,14 +97,14 @@ const Index = () => {
   };
 
   const getAccuracyBadgeVariant = (accuracy: number) => {
-    if (accuracy >= 0.95) return 'default';
-    if (accuracy >= 0.80) return 'secondary';
+    if (accuracy >= 0.90) return 'default';
+    if (accuracy >= 0.70) return 'secondary';
     return 'outline';
   };
 
   const getAccuracyIcon = (accuracy: number) => {
-    if (accuracy >= 0.95) return <CheckCircle className="w-4 h-4" />;
-    if (accuracy >= 0.80) return <TrendingUp className="w-4 h-4" />;
+    if (accuracy >= 0.90) return <CheckCircle className="w-4 h-4" />;
+    if (accuracy >= 0.70) return <TrendingUp className="w-4 h-4" />;
     return <AlertTriangle className="w-4 h-4" />;
   };
 
@@ -113,7 +113,7 @@ const Index = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Analyzing patterns for 95%+ accuracy...</p>
+          <p className="text-muted-foreground">Analyzing patterns for 90%+ accuracy...</p>
         </div>
       </div>
     );
@@ -137,7 +137,7 @@ const Index = () => {
             PlayWhe ProbMaster Pro
           </h1>
           <p className="text-xl text-muted-foreground mb-4">
-            Ultra-High Accuracy Prediction System (95%+ Target)
+            Ultra-High Accuracy Prediction System (90%+ Target)
           </p>
           
           {predictionSet && (
@@ -201,7 +201,7 @@ const Index = () => {
           ) : (
             <Card className="p-8 text-center bg-gradient-card border-border/50">
               <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Insufficient Data for 95%+ Accuracy</h3>
+              <h3 className="text-xl font-bold mb-2">Insufficient Data for 90%+ Accuracy</h3>
               <p className="text-muted-foreground mb-4">
                 {predictionSet?.recommendation || "Need more historical data to generate high-accuracy predictions."}
               </p>

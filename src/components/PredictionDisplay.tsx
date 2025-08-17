@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, BarChart3 } from "lucide-react";
@@ -22,28 +23,28 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
-          <Target className="w-8 h-8 text-primary" />
+        <h2 className="text-2xl md:text-3xl font-bold mb-2 flex items-center justify-center gap-2">
+          <Target className="w-6 md:w-8 h-6 md:h-8 text-primary" />
           Next Draw Predictions
         </h2>
-        <p className="text-muted-foreground">Top 5 most likely numbers based on statistical analysis</p>
+        <p className="text-sm md:text-base text-muted-foreground">Top 5 most likely numbers based on statistical analysis</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         {topPredictions.map((prediction, index) => (
           <Card key={prediction.number} className="relative overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
-            <div className="p-6 text-center">
+            <div className="p-4 md:p-6 text-center">
               <div className="absolute top-2 right-2">
                 <Badge variant="secondary" className="text-xs">
                   #{index + 1}
                 </Badge>
               </div>
               
-              <div className="text-4xl font-bold text-primary mb-2 animate-pulse-glow">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2 animate-pulse-glow">
                 {prediction.number}
               </div>
               
-                <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-center gap-1">
                   <TrendingUp className="w-4 h-4 text-success" />
                   <span className="text-success font-medium">
@@ -66,7 +67,7 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
                   <div className="text-primary/80">
                     {prediction.element} Element
                   </div>
-                  <div className="text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     Chinese: {(prediction.chineseScore * 100).toFixed(0)}% | 
                     Time: {(prediction.timePatternScore * 100).toFixed(0)}%
                   </div>

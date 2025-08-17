@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { PredictionDisplay } from "@/components/PredictionDisplay";
 import { DrawInput } from "@/components/DrawInput";
@@ -133,23 +134,23 @@ const Index = () => {
             Logout
           </Button>
           
-          <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
             PlayWhe ProbMaster Pro
           </h1>
-          <p className="text-xl text-muted-foreground mb-4">
+          <p className="text-lg md:text-xl text-muted-foreground mb-4">
             Ultra-High Accuracy Prediction System (90%+ Target)
           </p>
           
           {predictionSet && (
-            <div className="flex justify-center gap-4 flex-wrap">
-              <Badge variant={getAccuracyBadgeVariant(predictionSet.expectedAccuracy)} className="text-sm">
+            <div className="flex justify-center gap-2 md:gap-4 flex-wrap">
+              <Badge variant={getAccuracyBadgeVariant(predictionSet.expectedAccuracy)} className="text-xs md:text-sm">
                 {getAccuracyIcon(predictionSet.expectedAccuracy)}
                 Expected: {(predictionSet.expectedAccuracy * 100).toFixed(1)}% Accuracy
               </Badge>
-              <Badge variant="outline" className="text-sm">
+              <Badge variant="outline" className="text-xs md:text-sm">
                 Data Points: {predictionSet.totalDataPoints}
               </Badge>
-              <Badge variant="secondary" className="text-sm">
+              <Badge variant="secondary" className="text-xs md:text-sm">
                 Confidence: {(predictionSet.overallConfidence * 100).toFixed(1)}%
               </Badge>
             </div>
@@ -169,39 +170,43 @@ const Index = () => {
                 element: p.element
               }))} />
               
-              <Card className="p-6 bg-gradient-card border-border/50">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  High-Accuracy Analysis
-                </h3>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{predictionSet.recommendation}</p>
-                  
-                  {predictionSet.predictions.slice(0, 3).map((prediction, index) => (
-                    <div key={prediction.number} className="border-l-4 border-primary/30 pl-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg font-bold text-primary">#{prediction.number}</span>
-                        <Badge variant={getAccuracyBadgeVariant(prediction.accuracy)}>
-                          {(prediction.accuracy * 100).toFixed(1)}% Accuracy
-                        </Badge>
-                        <Badge variant={prediction.riskLevel === 'LOW' ? 'default' : prediction.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'}>
-                          {prediction.riskLevel} Risk
-                        </Badge>
-                      </div>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        {prediction.reasoning.map((reason, idx) => (
-                          <li key={idx}>• {reason}</li>
-                        ))}
-                      </ul>
+              <Card className="p-4 md:p-6 bg-gradient-card border-border/50">
+                <div className="text-center">
+                  <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center justify-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    High-Accuracy Analysis
+                  </h3>
+                  <div className="space-y-4 max-w-4xl mx-auto">
+                    <p className="text-sm text-muted-foreground text-center">{predictionSet.recommendation}</p>
+                    
+                    <div className="grid gap-4 md:gap-6">
+                      {predictionSet.predictions.slice(0, 3).map((prediction, index) => (
+                        <div key={prediction.number} className="border-l-4 border-primary/30 pl-4 text-left">
+                          <div className="flex items-center justify-center md:justify-start gap-2 mb-2 flex-wrap">
+                            <span className="text-lg font-bold text-primary">#{prediction.number}</span>
+                            <Badge variant={getAccuracyBadgeVariant(prediction.accuracy)} className="text-xs">
+                              {(prediction.accuracy * 100).toFixed(1)}% Accuracy
+                            </Badge>
+                            <Badge variant={prediction.riskLevel === 'LOW' ? 'default' : prediction.riskLevel === 'MEDIUM' ? 'secondary' : 'destructive'} className="text-xs">
+                              {prediction.riskLevel} Risk
+                            </Badge>
+                          </div>
+                          <ul className="text-xs text-muted-foreground space-y-1 text-center md:text-left">
+                            {prediction.reasoning.map((reason, idx) => (
+                              <li key={idx}>• {reason}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </Card>
             </>
           ) : (
-            <Card className="p-8 text-center bg-gradient-card border-border/50">
+            <Card className="p-6 md:p-8 text-center bg-gradient-card border-border/50">
               <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Insufficient Data for 90%+ Accuracy</h3>
+              <h3 className="text-lg md:text-xl font-bold mb-2">Insufficient Data for 90%+ Accuracy</h3>
               <p className="text-muted-foreground mb-4">
                 {predictionSet?.recommendation || "Need more historical data to generate high-accuracy predictions."}
               </p>

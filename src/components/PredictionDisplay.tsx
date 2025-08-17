@@ -7,6 +7,9 @@ interface Prediction {
   probability: number;
   daysSince: number;
   frequency: number;
+  chineseScore: number;
+  timePatternScore: number;
+  element: string;
 }
 
 interface PredictionDisplayProps {
@@ -40,7 +43,7 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
                 {prediction.number}
               </div>
               
-              <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-center gap-1">
                   <TrendingUp className="w-4 h-4 text-success" />
                   <span className="text-success font-medium">
@@ -48,7 +51,7 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
                   </span>
                 </div>
                 
-                <div className="text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   Last seen: {prediction.daysSince} draws ago
                 </div>
                 
@@ -57,6 +60,16 @@ export const PredictionDisplay = ({ predictions }: PredictionDisplayProps) => {
                   <span className="text-xs">
                     Drawn {prediction.frequency} times
                   </span>
+                </div>
+
+                <div className="text-xs text-center space-y-1">
+                  <div className="text-primary/80">
+                    {prediction.element} Element
+                  </div>
+                  <div className="text-muted-foreground">
+                    Chinese: {(prediction.chineseScore * 100).toFixed(0)}% | 
+                    Time: {(prediction.timePatternScore * 100).toFixed(0)}%
+                  </div>
                 </div>
               </div>
             </div>
